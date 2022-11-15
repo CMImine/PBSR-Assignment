@@ -1,13 +1,5 @@
 #3
-attach(faithful)
-hist(faithful$waiting,xlab = 'waiting',probability = T,col='pink',main='')
-mlemod1 <- function(theta,data){
-  alpha = theta[1]
-  s1 = theta[2]
-  mu = theta[3]
-  s2 = theta[4]
-  p = 
-}
+
 #5
 library(quantmod)
 getSymbols('TCS.NS')
