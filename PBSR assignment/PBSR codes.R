@@ -195,3 +195,34 @@ BIC
 
 
 
+NegLogLike<- function(theta,data){
+  sigma = theta[3]
+  n = nrow(data)
+  l=0
+  for(i in 1:n){
+    if (data$Claims[i]!=0){
+    mu = theta[1]+theta[2]*data$Holders[i]
+    l = l + log(dgamma(data$Claims[i],shape = mu,scale = sigma))
+    #print(l)
+    
+    }
+  }
+  return(-l)
+}
+
+theta_initial=c(1,0.1,1)
+NegLogLike(theta_initial,Insurance)
+
+
+fit = optim(theta_initial
+            ,NegLogLike
+            ,data=Insurance)
+
+
+theta_hat = fit$par
+theta_hat
+BIC=2*NegLogLike(theta_hat,Insurance)+log(nrow(Insurance))*2
+BIC
+
+
+#=======================================================================================================================================================
