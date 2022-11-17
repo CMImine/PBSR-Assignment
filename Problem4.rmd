@@ -1,0 +1,210 @@
+--
+title: "PBSR Project"
+author: "Anjan Mondal"
+date: "16/11/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning=F,message=F,comment=NA,echo = FALSE)
+```
+
+
+# Problem 4: Modelling Insurance Claims
+
+
+## Part A
+
+$$\texttt{Claims}_i=\beta_0 + \beta_1~\texttt{Holders}_i + \varepsilon_i,~~~i=1,2,\cdots,n \\
+$$
+$$\texttt{Claims}_i\sim N(\mu_i,\sigma^2),~~where$$
+$$\mu_i =\beta_0 + \beta_1~\texttt{Holders}_i + \varepsilon_i,~~~i=1,2,\cdots,n$$
+
+```{r,warning=FALSE,message=FALSE}
+library(ggplot2)
+library(MASS)
+NegLogLike<- function(theta,data){
+  sigma = theta[3]
+  n = nrow(data)
+  l=0
+  for(i in 1:n){
+    mu = theta[1]+theta[2]*data$Holders[i]
+    l = l + log(dnorm(data$Claims[i],mean = mu,sd=sigma))
+  }
+  return(-l)
+}
+theta_initial=c(0.01,0.1,10)
+#NegLogLike(theta_initial,Insurance)
+fit = optim(theta_initial
+            ,NegLogLike
+            ,data=Insurance,
+            )
+theta_hat = fit$par
+BIC=2*NegLogLike(theta_hat,Insurance)+log(nrow(Insurance))*2
+print(paste("Beta_0:", theta_hat[1]))
+print(paste("Beta_1:",theta_hat[2]))
+print(paste("Sigma:", theta_hat[3]))
+print(paste("BIC:", BIC))
+```
+
+
+## Part B
+
+
+$$
+\texttt{Claims}_i=\beta_0 + \beta_1~\texttt{Holders}_i + \varepsilon_i,~~~i=1,2,\cdots,n \\
+$$
+
+$$
+\texttt{Claims}_i\sim LogNormal(\mu_i,\sigma^2), where \\
+$$
+
+$$
+\mu_i=\beta_0 + \beta_1 \log(\texttt{Holders}_i), ~~i=1,2,...,n \\
+$$
+
+```{r,warning=FALSE,message=FALSE}
+laplace<-function(x,loc, b){
+  exp(-abs(x-loc)/b)/(2*b)
+}
+
+
+NegLogLike<- function(theta,data){
+  sigma = theta[3]
+  n = nrow(data)
+  l=0
+  for(i in 1:n){
+    mu = theta[1]+theta[2]*data$Holders[i]
+    l = l + log(laplace(data$Claims[i],loc = mu,b = sigma))
+    #print(l)
+  }
+  return(-l)
+}
+
+
+
+#theta_initial=c(8,0.1,10)
+NegLogLike(theta_initial,Insurance)
+
+fit = optim(theta_initial
+            ,NegLogLike
+            ,data=Insurance)
+
+
+
+theta_hat = fit$par
+theta_hat = fit$par
+
+
+BIC=2*NegLogLike(theta_hat,Insurance)+log(nrow(Insurance))*2
+print(paste("Beta_0:", theta_hat[1]))
+print(paste("Beta_1:",theta_hat[2]))
+print(paste("Sigma:", theta_hat[3]))
+
+print(paste("BIC:", BIC))
+```
+
+## Part C
+
+
+$$
+\texttt{Claims}_i\sim LogNormal(\mu_i,\sigma^2), where \\
+$$
+
+$$
+\mu_i=\beta_0 + \beta_1 \log(\texttt{Holders}_i), ~~i=1,2,...,n \\
+$$
+
+$$
+\mu_i=\beta_0 + \beta_1 \log(\texttt{Holders}_i), ~~i=1,2,...,n \\
+$$
+
+```{r,warning=FALSE,message=FALSE}
+dataIn=Insurance[-c(61),]
+NegLogLike<- function(theta,data){
+  sigma = theta[3]
+  n = nrow(data)
+  l=0
+  for(i in 1:n){
+    mu = theta[1]+theta[2]*data$Holders[i]
+    l = l + log(dlnorm(data$Claims[i],meanlog = mu,sdlog = sigma))
+    
+  }
+  return(-l)
+}
+
+
+#theta_initial=c(1,0.1,10)
+NegLogLike(theta_initial,dataIn)
+
+fit = optim(theta_initial
+            ,NegLogLike
+            ,data=dataIn)
+
+theta_hat = fit$par
+
+
+
+
+BIC=2*NegLogLike(theta_hat,dataIn)+log(nrow(dataIn))*2
+print(paste("Beta_0:", theta_hat[1]))
+print(paste("Beta_1:",theta_hat[2]))
+print(paste("Sigma:", theta_hat[3]))
+
+print(paste("BIC:", BIC))
+
+```
+
+## Part D:
+
+
+$$
+\texttt{Claims}_i\sim Gamma(\alpha_i,\sigma), where \\
+$$
+$$
+log(\alpha_i)=\beta_0 + \beta_1 \log(\texttt{Holders}_i), ~~i=1,2,...,n \\
+$$
+
+```{r,warning=FALSE,message=FALSE}
+
+
+NegLogLike<- function(theta,data){
+  sigma = theta[3]
+  n = nrow(data)
+  l=0
+  for(i in 1:n){
+    if (data$Claims[i]!=0){
+    mu = theta[1]+theta[2]*data$Holders[i]
+    l = l + log(dgamma(data$Claims[i],shape = mu,scale = sigma))
+    #print(l)
+    
+    }
+  }
+  return(-l)
+}
+
+#theta_initial=c(1,0.1,1)
+NegLogLike(theta_initial,Insurance)
+
+
+fit = optim(theta_initial
+            ,NegLogLike
+            ,data=Insurance)
+
+
+theta_hat = fit$par
+
+
+
+BIC=2*NegLogLike(theta_hat,Insurance)+log(nrow(Insurance))*2
+BIC
+
+print(paste("Beta_0:", theta_hat[1]))
+print(paste("Beta_1:",theta_hat[2]))
+print(paste("Sigma:", theta_hat[3]))
+
+print(paste("BIC:", BIC))
+
+```
+
+Comparing BIC of all 3 models. We get that Gamma model has the lowest BIC value among all of the models.
