@@ -166,3 +166,4 @@ L_X(a,b)=\prod_{i=1}^{n}[f_{X_i}(x)]\hspace{0.3cm}[\because the\ variables\ X_i'
 $$
 $$L_X(a,b)=\frac{1}{b^{an}}.e^{-\sum_ix_i/b}\prod_{i=1}^nx_i^{(a-1)}$$
 Now we write the code to get MLE using optim function in R.
+We are done
